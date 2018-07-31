@@ -9,20 +9,27 @@ import configparser
 inifile = configparser.ConfigParser()
 inifile.read('../../env/config.ini')
 
+retry = int(inifile.get('general', 'retry_num'))
 ig_access_token = inifile.get('instagram', 'access_token')
 
 hashtag = "odaiba"
 max_id = ''
 
-url = "https://www.instagram.com/explore/tags/" + hashtag + "/?__a=1"
+base_url = "https://www.instagram.com/explore/tags/" + hashtag + "/?__a=1"
+url = base_url
 
 headers = {"content-type": "application/json"}
 res = requests.get(url, headers=headers)
 
-while res.status_code == 200 :
+while retry > 0 and res.status_code == 200 :
     # TODO
     # content-length compare with res.text
-    
+
+    if res.json() is None :
+        res = requests.get(url, headers = headers)
+        retry = retry - 1
+        next()
+
     timelines = json.loads(res.text)
 
     if timelines['graphql']['hashtag']['edge_hashtag_to_media']['page_info']['has_next_page'] :
@@ -53,6 +60,7 @@ while res.status_code == 200 :
             if photo_data['graphql']['shortcode_media']['location'] :
                 loc_url = "https://www.instagram.com/explore/locations/{loc_id}/{slug}/?__a=1".format(loc_id=photo_data['graphql']['shortcode_media']['location']['id'], slug=photo_data['graphql']['shortcode_media']['location']['slug'])
 
+                sleep(0.5)
                 loc_res = requests.get(loc_url, headers=headers)
                 if loc_res.status_code == 200:
                     loc_data = json.loads(loc_res.text)
@@ -66,8 +74,9 @@ while res.status_code == 200 :
 
     sleep(3)
     if max_id is not None :
-        print("NEXT call : " + str(max_id))
-        res = requests.get(url + "&max_id=" + str(max_id), headers = headers)
+        url = base_url + "&max_id=" + str(max_id)
+        print("NEXT call : " + url)
+        res = requests.get(url, headers = headers)
     else :
         res.status_code = 404
 
