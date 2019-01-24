@@ -17,13 +17,16 @@ arg_num = len(args)
 
 hashtag = args[1]
 max_id = ''
+#max_id = 'AQD3njx3Hdjw5KtBTF0gw1pSHj4i1rwpGXBdHn6B3gVbvRdPRNcmy87f1vFibsoNBua2FrtQamuhHBTK1cnjD3VcDYh2YfMxRSNP5LzfI-V_wQ'
 
 url = "https://www.instagram.com/explore/tags/" + hashtag + "/?__a=1"
 base_dir = "/home/hiroki/SpatialKG/ranking_cities/{area}/".format(area=hashtag)
 filename = "{dir}/{area}_{max_id}.json".format(dir=base_dir,area=hashtag,max_id=0)
+#filename = "{dir}/{area}_{max_id}.json".format(dir=base_dir,area=hashtag,max_id=max_id)
 
 headers = {"content-type": "application/json"}
 res = requests.get(url, headers=headers)
+#res = requests.get(url + "&max_id=" + str(max_id), headers = headers)
 
 max_files = 10000
 files = 0
