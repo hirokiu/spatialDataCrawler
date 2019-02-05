@@ -17,24 +17,39 @@ arg_num = len(args)
 
 hashtag = args[1]
 max_id = ''
+#max_id = 'AQD3njx3Hdjw5KtBTF0gw1pSHj4i1rwpGXBdHn6B3gVbvRdPRNcmy87f1vFibsoNBua2FrtQamuhHBTK1cnjD3VcDYh2YfMxRSNP5LzfI-V_wQ'
 
 url = "https://www.instagram.com/explore/tags/" + hashtag + "/?__a=1"
-base_dir = "/home/hiroki/SpatialKG/data_cities/{area}/".format(area=hashtag)
+base_dir = "/home/hiroki/SpatialKG/ranking_cities/{area}/".format(area=hashtag)
 filename = "{dir}/{area}_{max_id}.json".format(dir=base_dir,area=hashtag,max_id=0)
+#filename = "{dir}/{area}_{max_id}.json".format(dir=base_dir,area=hashtag,max_id=max_id)
 
 headers = {"content-type": "application/json"}
 res = requests.get(url, headers=headers)
+#res = requests.get(url + "&max_id=" + str(max_id), headers = headers)
+
+max_files = 10000
+files = 0
 
 while res.status_code == 200 :
     # TODO
     # content-length compare with res.text
     
+    if max_files < files :
+        sys.exit()
+
     # file download
     with open(filename, mode='w') as f:
         f.write(res.text)
 
+    files+=1
+
     # find next url
+    # Content-Length分をread  
+    #json_text = res.read(length)  
+        
     timelines = json.loads(res.text)
+    #timelines = json.loads(json_text)
 
     if timelines['graphql']['hashtag']['edge_hashtag_to_media']['page_info']['has_next_page'] :
         max_id = timelines['graphql']['hashtag']['edge_hashtag_to_media']['page_info']['end_cursor']
@@ -45,7 +60,13 @@ while res.status_code == 200 :
 
     sleep(3)
     if max_id is not None :
-        #print("NEXT call : " + str(max_id))
+        print("NEXT call : " + url + "&max_id=" + str(max_id))
         res = requests.get(url + "&max_id=" + str(max_id), headers = headers)
+        #headers_data = res.info()  
+        # ヘッダーからContent-Lengthを取得  
+        #json_length = int(headers_data.getheader('Content-Length', -1))  
+        #print(json_length)
     else :
         res.status_code = 404
+
+print(url + "&max_id=" + str(max_id) + " : " +res.status_code)
