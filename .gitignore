@@ -1,5 +1,7 @@
-# shell script
+# for this Repo
 nohup.out
+data/
+*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
