@@ -24,10 +24,10 @@ pattern = ['political', 'postal_code', 'locality', 'sublocality']
 
 # mysql connect
 dbcon = mysql.connector.connect(
-  database="dev_SpatialKG",
-  user="root",
-  password="",
-  host="127.0.0.1",
+  database=inifile.get('mysql','db_name'),
+  user=inifile.get('mysql','db_user'),
+  password=inifile.get('mysql','db_password'),
+  host=inifile.get('mysql','db_host'),
 )
 dbcur = dbcon.cursor()
 
